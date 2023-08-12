@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import { useFetchUser } from "../services";
+import Spinner from "../components/Spinner";
 
 function Users() {
   const [show, setShow] = useState(false);
@@ -21,35 +22,36 @@ function Users() {
   const users = useFetchUser(1);
 
   return (
-    <>
-      {console.log("🚀 ~ file: Users.js:27 ~ Users ~ users:", users)}
-      {!!users && (
+    <div className="d-flex flex-wrap justify-content-center align-items-center">
+      {!!users && users.length > 0 ? (
         <>
-          <div className="d-flex flex-wrap justify-content-center align-items-center">
-            {users.map((user) => {
-              return (
-                <div key={user.id} className="card card-user text-center">
-                  <div className="card-body">
-                    <h5 className="card-title">{user.first_name}</h5>
-                    <p className="card-text">{user.email}</p>
-                    <p>
-                      <a
-                        href="#"
-                        onClick={() => handleShow(user)}
+          {users.map((user) => {
+            return (
+              <div
+                key={user.id}
+                className="card text-center m-1"
+                style={{ width: "23.3%" }}
+              >
+                <div className="card-body">
+                  <h5 className="card-title">{user.first_name}</h5>
+                  <p className="card-text">{user.email}</p>
+                  <p>
+                    <a
+                      href="#"
+                      onClick={() => handleShow(user)}
+                      alt={user.first_name}
+                    >
+                      <img
+                        src={user.avatar}
+                        style={{ width: "80px", borderRadius: "4px" }}
                         alt={user.first_name}
-                      >
-                        <img
-                          src={user.avatar}
-                          style={{ width: "80px", borderRadius: "4px" }}
-                          alt={user.first_name}
-                        />
-                      </a>
-                    </p>
-                  </div>
+                      />
+                    </a>
+                  </p>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
           <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
               <Modal.Title>{currentUser.first_name}'s information</Modal.Title>
@@ -79,8 +81,10 @@ function Users() {
             </Modal.Footer>
           </Modal>
         </>
+      ) : (
+        <Spinner />
       )}
-    </>
+    </div>
   );
 }
 
