@@ -1,5 +1,5 @@
 import { useRouteError } from "react-router-dom";
-import BsNavbar from "./BsNavbar";
+import MyNavbar from "../components/Navbar";
 import Logo from "../components/Logo";
 
 export default function ErrorPage() {
@@ -9,7 +9,7 @@ export default function ErrorPage() {
   return (
     <div className="App">
       <header className="App-header">
-        <BsNavbar />
+        <MyNavbar />
       </header>
       <div className="App-body">
         <div id="error-page">

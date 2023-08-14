@@ -7,9 +7,11 @@ import App from "./views/App";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import About from "./views/About";
 import ErrorPage from "./views/ErrorPage";
-import MainLayout from "./views/layouts/MainLayout";
+import MainLayout from "./layouts/MainLayout";
 import Users from "./views/Users";
 import "./index.scss";
+import Blog from "./views/Blog";
+import Post from "./views/Post";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +22,14 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <App />,
+      },
+      {
+        path: "blog",
+        element: <Blog />,
+      },
+      {
+        path: "post/:id",
+        element: <Post />,
       },
       {
         path: "users",
