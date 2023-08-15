@@ -1,7 +1,7 @@
 import axios from "axios";
 import { add, clear, selectUsers } from "../store/reducers/Users";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Hashids from "hashids";
 
 const hashids = new Hashids("", 4);
@@ -16,10 +16,7 @@ export const hashDecode = (input) => {
 
 export const randomDate = () => {
   const start = new Date(new Date().getFullYear().toString());
-  console.log("🚀 ~ file: Blog.js:10 ~ randomDate ~ start:", start);
-
   const end = new Date();
-  console.log("🚀 ~ file: Blog.js:13 ~ randomDate ~ end:", end);
 
   const randDate = new Date(
     start.getTime() + Math.random() * (end.getTime() - start.getTime())
@@ -47,11 +44,38 @@ export const truncate = (words, maxlength) => {
   return `${words.slice(0, maxlength)} …`;
 };
 
-export const fetchPosts = async (signal) => {
-  const url = "https://jsonplaceholder.typicode.com/posts/?_limit=10";
-  console.log(`call reqres to fetch posts from ${url}...`);
-  const result = await axios.get(url, { signal });
-  return result.data;
+export const useFetch = (url, timeOut = 200) => {
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState([]);
+  const [isError, setIsError] = useState([]);
+
+  console.log(`call reqres to fetch data from ${url}...`);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // A new instance of the AbortController is created before making the API request
+        const controller = new AbortController();
+        const result = await axios.get(url, { signal: controller.signal });
+        setData(result.data);
+        console.log("🚀 ~ file: index.js:62 ~ fetchData ~ tmp:", data);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, timeOut);
+
+        return () => {
+          console.log("component will unmount!!!");
+          // cancel request
+          stopFetching(controller);
+        };
+      } catch (error) {
+        setIsError(true);
+      }
+    }
+    fetchData();
+  }, []);
+
+  return { data, isLoading, isError };
 };
 
 export const fetchPost = async (signal, id) => {
@@ -84,7 +108,7 @@ export const useFetchUser = (page = 1) => {
           if (!!result) {
             setTimeout(() => {
               dispatch(add(result)); // trigger to store by redux
-            }, 1000);
+            }, 500);
           }
         })
         .catch((error) => {

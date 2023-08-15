@@ -29,7 +29,7 @@ function Users() {
             return (
               <div
                 key={user.id}
-                className="card text-center m-1"
+                className="card text-center m-1 position-relative"
                 style={{ width: "23.3%" }}
               >
                 <div className="card-body">
@@ -40,6 +40,7 @@ function Users() {
                       href="#"
                       onClick={() => handleShow(user)}
                       alt={user.first_name}
+                      className="stretched-link"
                     >
                       <img
                         src={user.avatar}
@@ -60,7 +61,11 @@ function Users() {
               <div className="d-flex flex-column justify-content-center align-items-center">
                 <p>
                   {currentUser.first_name} {currentUser.last_name} @{" "}
-                  <a href={`mailto:${currentUser.email}`} target="_blank">
+                  <a
+                    href={`mailto:${currentUser.email}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     {currentUser.email}
                   </a>
                 </p>

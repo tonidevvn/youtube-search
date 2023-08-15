@@ -1,44 +1,21 @@
-import React, { useEffect, useState } from "react";
-import {
-  fetchPosts,
-  hashEncode,
-  randomDate,
-  stopFetching,
-  truncate,
-} from "../services";
+import React from "react";
+import { hashEncode, randomDate, truncate, useFetch } from "../services";
 import { Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import Hello from "../components/Hello";
 
 function Blog() {
-  const [posts, setPosts] = useState([]);
-
-  useEffect(() => {
-    // A new instance of the AbortController is created before making the API request
-    const controller = new AbortController();
-    fetchPosts(controller.signal).then((res) => setPosts(res));
-
-    return () => {
-      console.log("component will unmount!!!");
-      // cancel request
-      stopFetching(controller);
-    };
-  }, []);
+  const { data, isLoading } = useFetch(process.env.REACT_APP_POSTS_API);
 
   return (
     <>
-      <h3>
-        Hi there, I&#39;m&nbsp;
-        <a href="https://github.com/tonidevvn" rel="nofollow">
-          Toni
-        </a>
-        &nbsp;👋
-      </h3>
+      <Hello />
 
       <h2>Blog page 📸</h2>
 
-      {!!posts && posts.length > 0 ? (
+      {!!data && !isLoading ? (
         <div className="row mt-4">
-          {posts.map(({ id, title, body }) => {
+          {data.map(({ id, title, body }) => {
             return (
               <div className="col-md-6" key={id}>
                 <div className="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
