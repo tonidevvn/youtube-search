@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import { useFetchUser } from "../services";
+import { useFetchUser } from "../services/users";
 import Spinner from "../components/Spinner";
 
 function Users() {
@@ -19,7 +19,7 @@ function Users() {
     setCurrentUser(user);
   };
 
-  const users = useFetchUser(1);
+  const users = useFetchUser();
 
   return (
     <div className="d-flex flex-wrap justify-content-center align-items-center">

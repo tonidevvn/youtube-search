@@ -1,11 +1,23 @@
-import React from "react";
-import { hashEncode, randomDate, truncate, useFetch } from "../services";
+import React, { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { hashEncode, randomDate, truncate, useFetch } from "../services/utils";
 import Hello from "../components/Hello";
 
 function Blog() {
+  const navigate = useNavigate();
   const { data, isLoading } = useFetch(process.env.REACT_APP_POSTS_API);
+  const [latestData, setLatestData] = useState([]);
+
+  useEffect(() => {
+    setLatestData(data);
+  }, [data]);
+
+  const handleDelete = (id) => {
+    console.log("🚀 ~ file: Blog.js:12 ~ handleDelete ~ id:", id);
+    let newData = latestData.filter((e) => e.id !== id);
+    setLatestData(newData);
+  };
 
   return (
     <>
@@ -13,9 +25,16 @@ function Blog() {
 
       <h2>Blog page 📸</h2>
 
-      {!!data && !isLoading ? (
+      <button
+        className="btn btn-outline-primary"
+        onClick={() => navigate("/new-post")}
+      >
+        Add a new post
+      </button>
+
+      {!!latestData && !isLoading ? (
         <div className="row mt-4">
-          {data.map(({ id, title, body }) => {
+          {latestData.map(({ id, title, body }) => {
             return (
               <div className="col-md-6" key={id}>
                 <div className="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
@@ -27,12 +46,13 @@ function Blog() {
                     <div className="card-text mb-auto fs-6">
                       {truncate(body, 142)}
                     </div>
-                    <Link
-                      to={`/post/${hashEncode(id)}`}
-                      className="stretched-link"
+                    <Link to={`/post/${hashEncode(id)}`}>Continue reading</Link>
+                    <button
+                      className="btn btn-link text-danger"
+                      onClick={() => handleDelete(id)}
                     >
-                      Continue reading
-                    </Link>
+                      Delete
+                    </button>
                   </div>
                   <div className="col-auto d-none d-lg-block">
                     <svg

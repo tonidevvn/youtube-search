@@ -12,6 +12,10 @@ import Users from "./views/Users";
 import "./index.scss";
 import Blog from "./views/Blog";
 import Post from "./views/Post";
+import AddNewPost from "./views/AddNewPost";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import YoutubeSearch from "./views/YoutubeSearch";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +25,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <App />,
+        element: <YoutubeSearch />,
       },
       {
         path: "blog",
@@ -30,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "post/:id",
         element: <Post />,
+      },
+      {
+        path: "new-post",
+        element: <AddNewPost />,
       },
       {
         path: "users",
@@ -47,5 +55,6 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <RouterProvider router={router} />
+    <ToastContainer />
   </Provider>
 );

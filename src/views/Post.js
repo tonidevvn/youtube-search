@@ -1,8 +1,8 @@
 import React from "react";
-import { hashDecode, randomDate, useFetch } from "../services";
 import { Spinner } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import AuthorBio from "../components/AuthorBio";
+import { hashDecode, randomDate, useFetch } from "../services/utils";
 
 function Post(props) {
   const { id } = useParams();
