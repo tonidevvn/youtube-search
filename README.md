@@ -1,4 +1,4 @@
-# Sayhi react18
+# Youtube Search with React
 
 A simple web app allows to search youtube videos by keywords, created with React.js
 
