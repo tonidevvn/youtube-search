@@ -1,42 +1,67 @@
 import youtube from "../services/youtube";
-import React, { useState } from "react";
-import moment from "moment";
-import { Spinner } from "react-bootstrap";
-import YTVideo from "../components/YTVideo";
-import { decode } from "html-entities";
+import React, { useEffect, useRef, useState } from "react";
+import LoadingBar from "react-top-loading-bar";
 import { sleep } from "../services/utils";
+import { YTVideosList } from "../components/YTVideosList";
+import { useDispatch, useSelector } from "react-redux";
+import { add, selectYtbVideos } from "../store/reducers/YtbVideos";
 
 function YoutubeSearch() {
-  const [query, setQuery] = useState("");
-  const [videos, setVideos] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const ytbVideos = useSelector(selectYtbVideos);
+  console.log(
+    "🚀 ~ file: YoutubeSearch.js:11 ~ YoutubeSearch ~ ytbVideos:",
+    ytbVideos
+  );
+
+  const dispatch = useDispatch();
+
   const [isError, setIsError] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const YtbVideosList = useRef();
 
   const handleChange = (event) => {
-    setQuery(event.target.value);
+    dispatch(add({ ...ytbVideos, q: event.target.value }));
   };
 
   const handleSearch = async () => {
     try {
+      setProgress(Math.floor(Math.random() * 30) + 10);
       setIsError(false);
-      setIsLoading(true);
+      YtbVideosList.current.setIsLoading(true);
       const res = await youtube.get("/search", {
         params: {
-          q: query,
+          q: ytbVideos.q,
         },
       });
-      setVideos(res.data.items);
-      console.log(videos);
-      await sleep(500);
-      setIsLoading(false);
+      console.log(res.data.items);
+      dispatch(add({ ...ytbVideos, videos: res.data.items }));
+      await sleep(1500); // a little delay before loading disappear
+      YtbVideosList.current.setIsLoading(false);
+      setProgress(100);
     } catch (error) {
       console.log(error);
       setIsError(true);
     }
   };
 
+  useEffect(() => {
+    async function updateLoadingBar() {
+      if (progress < 100 && progress > 0) {
+        let tmp = Math.floor(Math.random() * 10) + 10;
+        await sleep(200);
+        setProgress(progress + tmp);
+      }
+    }
+    updateLoadingBar();
+  }, [progress]);
+
   return (
     <div className="container">
+      <LoadingBar
+        color="#f11946"
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
       <h2>Youtube Search Video (demo) 👌</h2>
       <div className="input-group">
         <input
@@ -44,7 +69,7 @@ function YoutubeSearch() {
           name="video-query"
           className="form-control p-2"
           placeholder="Searching by keywords"
-          value={query}
+          value={ytbVideos.q}
           onChange={handleChange}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -62,56 +87,8 @@ function YoutubeSearch() {
       </div>
 
       <div className="container py-4">
-        {!!videos && !isLoading ? (
-          <>
-            {videos.map((video, index) => {
-              return (
-                <div className="my-4" key={index}>
-                  <div className="card mb-3">
-                    <div className="row g-0">
-                      <div className="col-md-4">
-                        <YTVideo
-                          src={`https://www.youtube.com/embed/${video.id.videoId}`}
-                          title={decode(video.snippet.title)}
-                        />
-                      </div>
-                      <div
-                        className="col-md-8 position-relative "
-                        style={{ minHeight: "260px" }}
-                      >
-                        <div className="card-body">
-                          <h4 className="card-title">
-                            {decode(video.snippet.title)}
-                          </h4>
-                          <p className="card-text text-muted">
-                            {decode(video.snippet.channelTitle)}
-                          </p>
-                          <p className="card-text">
-                            {video.snippet.description}
-                          </p>
-                        </div>
-                        <div className="card-footer position-absolute bottom-0 start-0 end-0">
-                          <small className="text-muted">
-                            Last updated{" "}
-                            {moment(video.snippet.publishTime).fromNow()}
-                          </small>
-                        </div>
-                        <a
-                          href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
-                          title={decode(video.snippet.channelTitle)}
-                          className="stretched-link"
-                          target="_blank"
-                          rel="noreferrer"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </>
-        ) : !isError ? (
-          <Spinner />
+        {!isError ? (
+          <YTVideosList ref={YtbVideosList} />
         ) : (
           <h3>Something went wrong. Please try this function later.</h3>
         )}
