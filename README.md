@@ -31,6 +31,10 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 ## Screenshots
 
+While loading
+![Screenshot-2](/public/youtube-search-app-Screenshot_2.jpg?raw=true "Youtube Search While Loading")
+
+After fetching data
 ![Screenshot-1](/public/youtube-search-app-Screenshot_1.jpg?raw=true "Youtube Search")
 
 ## 🚀 Styling
