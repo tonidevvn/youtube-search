@@ -1,5 +1,5 @@
 import youtube from "../services/youtube";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useTransition } from "react";
 import LoadingBar from "react-top-loading-bar";
 import { sleep } from "../services/utils";
 import { YTVideosList } from "../components/YTVideosList";
@@ -7,12 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { add, selectYtbVideos } from "../store/reducers/YtbVideos";
 
 function YoutubeSearch() {
+  const [isPending, startTransition] = useTransition();
   const ytbVideos = useSelector(selectYtbVideos);
-  console.log(
-    "🚀 ~ file: YoutubeSearch.js:11 ~ YoutubeSearch ~ ytbVideos:",
-    ytbVideos
-  );
-
   const dispatch = useDispatch();
 
   const [isError, setIsError] = useState(false);
@@ -23,25 +19,33 @@ function YoutubeSearch() {
     dispatch(add({ ...ytbVideos, q: event.target.value }));
   };
 
-  const handleSearch = async () => {
-    try {
-      setProgress(Math.floor(Math.random() * 30) + 10);
-      setIsError(false);
-      YtbVideosList.current.setIsLoading(true);
-      const res = await youtube.get("/search", {
-        params: {
-          q: ytbVideos.q,
-        },
-      });
-      console.log(res.data.items);
-      dispatch(add({ ...ytbVideos, videos: res.data.items }));
-      await sleep(1500); // a little delay before loading disappear
-      YtbVideosList.current.setIsLoading(false);
-      setProgress(100);
-    } catch (error) {
-      console.log(error);
-      setIsError(true);
-    }
+  const handleSearch = () => {
+    startTransition(async () => {
+      try {
+        console.log(">>> startTransition");
+        setProgress(Math.floor(Math.random() * 30) + 10);
+        setIsError(false);
+
+        YtbVideosList.current.setIsLoading(true);
+
+        console.log(">>> 1");
+        const res = await youtube.get("/search", {
+          params: {
+            q: ytbVideos.q,
+          },
+        });
+        await sleep(1000); // a little delay before loading disappear
+        console.log(">>> 2");
+        console.log(res.data.items);
+        dispatch(add({ ...ytbVideos, videos: res.data.items }));
+        YtbVideosList.current.setIsLoading(false);
+        setProgress(100);
+      } catch (error) {
+        console.log(error);
+        setIsError(true);
+      }
+      console.log(">>> end startTransition");
+    });
   };
 
   useEffect(() => {
@@ -54,6 +58,13 @@ function YoutubeSearch() {
     }
     updateLoadingBar();
   }, [progress]);
+
+  useEffect(() => {
+    // at load isPending = false
+    // after start tranisition it is set to false
+    // but it never returns back to false
+    console.log("is pending ? ", isPending);
+  }, [isPending]);
 
   return (
     <div className="container">
@@ -80,6 +91,7 @@ function YoutubeSearch() {
         <button
           type="button"
           className="btn btn-outline-secondary"
+          disabled={isPending}
           onClick={handleSearch}
         >
           🔍 Search
